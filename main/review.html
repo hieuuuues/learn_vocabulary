@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tổng Ôn Từ Vựng | Vocabulary Manager</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary-color: #4f46e5;
+        --secondary-color: #818cf8;
+        --success: #22c55e;
+        --error: #ef4444;
+        --text-primary: #1e293b;
+        --text-secondary: #64748b;
+        --background: #eef2ff;
+        --light-blue: #e0e7ff;
+        --card-bg: rgba(255, 255, 255, 0.95);
+        --shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        --transition: all 0.3s ease;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Inter", sans-serif;
+      }
+
+      body {
+        background: linear-gradient(135deg, var(--background), #e5e7eb);
+        color: var(--text-primary);
+        min-height: 100vh;
+        padding: 0;
+      }
+
+      .header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        padding: 1rem 2rem;
+        background: transparent;
+        z-index: 10;
+      }
+
+      .back-button {
+        padding: 0.75rem;
+        background: var(--light-blue);
+        color: var(--primary-color);
+        border: none;
+        border-radius: 50%;
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 45px;
+        height: 45px;
+        transition: var(--transition);
+        box-shadow: var(--shadow);
+      }
+
+      .back-button:hover {
+        background: var(--primary-color);
+        color: white;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 5rem auto 0;
+        display: flex;
+        justify-content: center;
+      }
+
+      .main-content {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 2rem;
+        width: 100%;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 10px;
+        background: #e5e7eb;
+        border-radius: 5px;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: var(--primary-color);
+        transition: width 0.3s ease;
+      }
+
+      #timer {
+        text-align: right;
+        font-size: 1.1rem;
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+        width: 100%;
+      }
+
+      .question-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 1.2rem;
+        text-align: center;
+      }
+
+      .question-container {
+        margin-bottom: 2.5rem;
+        width: 100%;
+        max-width: 600px;
+        padding: 1.5rem;
+        border: 2px solid var(--primary-color);
+        border-radius: 12px;
+        background: var(--card-bg);
+      }
+
+      .sortable-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        padding: 0;
+        list-style: none;
+        justify-content: center;
+      }
+
+      .sortable-item {
+        padding: 0.6rem 1.2rem;
+        background: var(--secondary-color);
+        color: white;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: var(--transition);
+      }
+
+      .sortable-item:hover {
+        background: var(--primary-color);
+      }
+
+      .drop-box {
+        padding: 1.2rem;
+        background: #f9fafb;
+        border-radius: 8px;
+        min-height: 60px;
+        margin-top: 1.2rem;
+        text-align: center;
+      }
+
+      .mcq-options,
+      .tf-options {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        align-items: center;
+      }
+
+      .mcq-option,
+      .tf-option {
+        padding: 0.8rem;
+        background: white;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: var(--transition);
+        min-width: 200px;
+        text-align: center;
+      }
+
+      .mcq-option:hover,
+      .tf-option:hover {
+        background: var(--light-blue);
+      }
+
+      .mcq-option.selected,
+      .tf-option.selected {
+        background: var(--primary-color);
+        color: white;
+      }
+
+      .mcq-option.correct {
+        background: var(--success);
+        color: white;
+      }
+
+      .mcq-option.incorrect,
+      .tf-option.incorrect {
+        background: var(--error);
+        color: white;
+      }
+
+      .input-answer {
+        width: 100%;
+        max-width: 300px;
+        padding: 0.8rem;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: var(--transition);
+        background: white;
+        border: none;
+        margin: 0 auto;
+        display: block;
+      }
+
+      .input-answer:focus {
+        outline: none;
+        background: var(--light-blue);
+      }
+
+      .input-answer.correct {
+        background: var(--success);
+        color: white;
+      }
+
+      .input-answer.incorrect {
+        background: var(--error);
+        color: white;
+      }
+
+      .audio-btn {
+        padding: 0.6rem 1.2rem;
+        background: var(--secondary-color);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: var(--transition);
+        margin: 0 auto;
+        display: block;
+      }
+
+      .audio-btn:hover {
+        background: var(--primary-color);
+      }
+
+      .submit-btn {
+        padding: 0.8rem 2rem;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        margin: 2rem auto;
+        display: block;
+      }
+
+      .submit-btn:hover {
+        background: #3b3bff;
+        transform: translateY(-2px);
+        box-shadow: var(--shadow);
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 100;
+      }
+
+      .modal-content {
+        background: var(--card-bg);
+        margin: 10% auto;
+        padding: 2rem;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: var(--shadow);
+        text-align: center;
+      }
+
+      .modal-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 1.5rem;
+      }
+
+      .mode-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .mode-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem;
+        background: var(--light-blue);
+        border-radius: 8px;
+        transition: var(--transition);
+      }
+
+      .mode-item:hover {
+        background: var(--secondary-color);
+        color: white;
+      }
+
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 24px;
+      }
+
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: var(--transition);
+        border-radius: 24px;
+      }
+
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: var(--transition);
+        border-radius: 50%;
+      }
+
+      input:checked + .slider {
+        background-color: var(--primary-color);
+      }
+
+      input:checked + .slider:before {
+        transform: translateX(26px);
+      }
+
+      .result-list {
+        list-style: none;
+        display: none;
+        text-align: left;
+        margin-top: 1.5rem;
+      }
+
+      .result-item {
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 8px;
+        background: var(--light-blue);
+      }
+
+      .result-item.correct {
+        background: var(--success);
+        color: white;
+      }
+
+      .result-item.incorrect {
+        background: var(--error);
+        color: white;
+      }
+
+      .result-item p {
+        margin: 0.5rem 0;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <a href="study-options.html" class="back-button" id="backButton">
+        <i class="fas fa-arrow-left"></i>
+      </a>
+    </div>
+    <div class="container">
+      <div class="main-content">
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div id="timer">Thời gian: 00:00</div>
+        <div id="questionList"></div>
+        <button class="submit-btn" onclick="submitAnswers()">Kiểm tra</button>
+      </div>
+    </div>
+
+    <div class="modal" id="modeModal">
+      <div class="modal-content">
+        <h2 class="modal-title">Chọn Chế Độ Tổng Ôn</h2>
+        <div class="mode-list">
+          <div class="mode-item">
+            <span>Chọn đáp án ABCD</span>
+            <label class="switch">
+              <input type="checkbox" value="mcq" />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="mode-item">
+            <span>Nhập từ tiếng Anh</span>
+            <label class="switch">
+              <input type="checkbox" value="input" />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="mode-item">
+            <span>Sắp xếp từ vào ô</span>
+            <label class="switch">
+              <input type="checkbox" value="sort" />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="mode-item">
+            <span>Nghe audio để chọn từ</span>
+            <label class="switch">
+              <input type="checkbox" value="audio" />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="mode-item">
+            <span>Dạng đúng/sai</span>
+            <label class="switch">
+              <input type="checkbox" value="truefalse" />
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+        <button class="submit-btn" onclick="startModes()">Bắt đầu</button>
+      </div>
+    </div>
+
+    <div class="modal" id="resultModal">
+      <div class="modal-content">
+        <h2 class="modal-title" id="modalTitle">Kết Quả</h2>
+        <p id="resultSummary"></p>
+        <button class="submit-btn" onclick="showDetailedResults()">
+          Xem đáp án
+        </button>
+        <ul class="result-list" id="resultList"></ul>
+        <button class="submit-btn" onclick="closeModal()">Đóng</button>
+      </div>
+    </div>
+
+    <script>
+      let currentFolderId = null;
+      let flashcards = [];
+      let questions = [];
+      let userAnswers = {};
+      let startTime = null;
+      let selectedModes = [];
+
+      window.addEventListener("load", () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        currentFolderId = urlParams.get("id");
+
+        if (!currentFolderId) {
+          alert("Không tìm thấy thông tin thư mục!");
+          window.location.href = "index.html";
+          return;
+        }
+
+        document.getElementById(
+          "backButton"
+        ).href = `study-options.html?id=${currentFolderId}`;
+
+        loadFlashcards();
+        document.getElementById("modeModal").style.display = "block";
+      });
+
+      function loadFlashcards() {
+        const savedFlashcards = localStorage.getItem(
+          `flashcards_${currentFolderId}`
+        );
+        if (savedFlashcards) {
+          flashcards = JSON.parse(savedFlashcards);
+        } else {
+          alert("Không có từ vựng để ôn tập!");
+          window.location.href = `study-options.html?id=${currentFolderId}`;
+        }
+      }
+
+      function startModes() {
+        selectedModes = Array.from(
+          document.querySelectorAll(".mode-item input:checked")
+        ).map((input) => input.value);
+
+        if (selectedModes.length === 0) {
+          alert("Vui lòng chọn ít nhất một chế độ!");
+          return;
+        }
+
+        document.getElementById("modeModal").style.display = "none";
+        generateQuestions();
+        renderQuestions();
+        startTime = Date.now();
+        startTimer();
+        updateProgress();
+      }
+
+      function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+      }
+
+      function getRandomDistractors(correctAnswer, count) {
+        const distractors = [];
+        const allItems = shuffleArray(
+          flashcards
+            .map((f) =>
+              selectedModes.includes("audio") || selectedModes.includes("input")
+                ? f.word
+                : f.meaning
+            )
+            .filter((m) => m !== correctAnswer)
+        );
+        while (distractors.length < count && allItems.length > 0) {
+          distractors.push(allItems.shift());
+        }
+        return distractors;
+      }
+
+      function generateQuestions() {
+        const maxWords = Math.min(flashcards.length, 10 / selectedModes.length);
+        const selectedCards = shuffleArray([...flashcards]).slice(0, maxWords);
+
+        questions = [];
+        let questionIndex = 0;
+
+        selectedCards.forEach((card) => {
+          selectedModes.forEach((mode) => {
+            const questionId = `${questionIndex}-${mode}-${Date.now()}`;
+            let question;
+
+            switch (mode) {
+              case "mcq":
+                question = {
+                  id: questionId,
+                  type: "mcq",
+                  word: card.word,
+                  correctAnswer: card.meaning,
+                  options: shuffleArray([
+                    card.meaning,
+                    ...getRandomDistractors(card.meaning, 3),
+                  ]),
+                };
+                break;
+              case "input":
+                question = {
+                  id: questionId,
+                  type: "input",
+                  word: card.meaning,
+                  correctAnswer: card.word,
+                };
+                break;
+              case "sort":
+                question = {
+                  id: questionId,
+                  type: "sort",
+                  word: card.word,
+                  correctAnswer: card.word,
+                  options: shuffleArray(card.word.split("")),
+                };
+                break;
+              case "audio":
+                question = {
+                  id: questionId,
+                  type: "audio",
+                  word: card.word,
+                  correctAnswer: card.word,
+                  options: shuffleArray([
+                    card.word,
+                    ...getRandomDistractors(card.word, 3),
+                  ]),
+                };
+                break;
+              case "truefalse":
+                const isTrue = Math.random() > 0.5;
+                const wrongMeaning =
+                  isTrue || flashcards.length < 2
+                    ? card.meaning
+                    : shuffleArray(
+                        flashcards
+                          .map((f) => f.meaning)
+                          .filter((m) => m !== card.meaning)
+                      )[0];
+                question = {
+                  id: questionId,
+                  type: "truefalse",
+                  word: card.word,
+                  meaning: wrongMeaning,
+                  correctAnswer: isTrue ? "true" : "false",
+                };
+                break;
+            }
+
+            questions.push(question);
+            questionIndex++;
+          });
+        });
+
+        // Xáo trộn toàn bộ danh sách câu hỏi
+        questions = shuffleArray(questions);
+      }
+
+      function updateProgress() {
+        const totalQuestions = questions.length;
+        const answered = Object.keys(userAnswers).length;
+        const progress = (answered / totalQuestions) * 100;
+        document.getElementById("progressFill").style.width = `${progress}%`;
+        localStorage.setItem(
+          `answers_${currentFolderId}`,
+          JSON.stringify(userAnswers)
+        );
+      }
+
+      function renderQuestions() {
+        const container = document.getElementById("questionList");
+        container.innerHTML = "";
+
+        questions.forEach((q, index) => {
+          const div = document.createElement("div");
+          div.className = "question-container";
+          let content = "";
+
+          switch (q.type) {
+            case "mcq":
+              content = `
+                <h3 class="question-title">Câu ${index + 1}: Nghĩa của "${
+                q.word
+              }" là gì?</h3>
+                <div class="mcq-options" id="mcq-${q.id}">
+                  ${q.options
+                    .map(
+                      (opt) =>
+                        `<div class="mcq-option" data-answer="${opt}">${opt}</div>`
+                    )
+                    .join("")}
+                </div>
+              `;
+              div.innerHTML = content;
+              div
+                .querySelectorAll(".mcq-option")
+                .forEach((opt) =>
+                  opt.addEventListener("click", () => handleMCQ(q.id, opt))
+                );
+              break;
+
+            case "input":
+              content = `
+                <h3 class="question-title">Câu ${
+                  index + 1
+                }: Từ tiếng Anh của "${q.word}" là gì?</h3>
+                <input type="text" class="input-answer" id="input-${
+                  q.id
+                }" oninput="saveInputAnswer('${q.id}', this)">
+              `;
+              div.innerHTML = content;
+              break;
+
+            case "sort":
+              content = `
+                <h3 class="question-title">Câu ${index + 1}: Sắp xếp từ "${
+                q.word
+              }"</h3>
+                <div class="sortable-list" id="sort-options-${q.id}">
+                  ${q.options
+                    .map(
+                      (char) =>
+                        `<div class="sortable-item" data-char="${char}">${char}</div>`
+                    )
+                    .join("")}
+                </div>
+                <div class="drop-box" id="drop-box-${q.id}"></div>
+              `;
+              div.innerHTML = content;
+              div
+                .querySelectorAll(`#sort-options-${q.id} .sortable-item`)
+                .forEach((item) =>
+                  item.addEventListener("click", () =>
+                    handleSort(q.id, item.dataset.char)
+                  )
+                );
+              break;
+
+            case "audio":
+              content = `
+                <h3 class="question-title">Câu ${
+                  index + 1
+                }: Nghe và chọn từ</h3>
+                <button class="audio-btn" onclick="playAudio('${
+                  q.word
+                }')">Phát âm thanh</button>
+                <div class="mcq-options" id="audio-${q.id}">
+                  ${q.options
+                    .map(
+                      (opt) =>
+                        `<div class="mcq-option" data-answer="${opt}">${opt}</div>`
+                    )
+                    .join("")}
+                </div>
+              `;
+              div.innerHTML = content;
+              div
+                .querySelectorAll(`#audio-${q.id} .mcq-option`)
+                .forEach((opt) =>
+                  opt.addEventListener("click", () => handleMCQ(q.id, opt))
+                );
+              break;
+
+            case "truefalse":
+              content = `
+                <h3 class="question-title">Câu ${index + 1}: "${
+                q.word
+              }" có nghĩa là "${q.meaning}"?</h3>
+                <div class="tf-options" id="tf-${q.id}">
+                  <div class="tf-option" data-answer="true">Đúng</div>
+                  <div class="tf-option" data-answer="false">Sai</div>
+                </div>
+              `;
+              div.innerHTML = content;
+              div
+                .querySelectorAll(`#tf-${q.id} .tf-option`)
+                .forEach((opt) =>
+                  opt.addEventListener("click", () => handleMCQ(q.id, opt))
+                );
+              break;
+          }
+          container.appendChild(div);
+        });
+      }
+
+      function handleMCQ(id, option) {
+        const options = document.querySelectorAll(
+          `#mcq-${id} .mcq-option, #audio-${id} .mcq-option, #tf-${id} .tf-option`
+        );
+        options.forEach((o) => o.classList.remove("selected"));
+        option.classList.add("selected");
+        userAnswers[id] = option.dataset.answer;
+        updateProgress();
+      }
+
+      function saveInputAnswer(id, input) {
+        userAnswers[id] = input.value.trim();
+        updateProgress();
+      }
+
+      function handleSort(id, char) {
+        const dropBox = document.getElementById(`drop-box-${id}`);
+        userAnswers[id] = (userAnswers[id] || "") + char;
+        dropBox.textContent = userAnswers[id];
+        updateProgress();
+      }
+
+      function playAudio(word) {
+        const utterance = new SpeechSynthesisUtterance(word);
+        utterance.lang = "en-US";
+        speechSynthesis.speak(utterance);
+      }
+
+      function startTimer() {
+        setInterval(() => {
+          const elapsed = Math.floor((Date.now() - startTime) / 1000);
+          const minutes = String(Math.floor(elapsed / 60)).padStart(2, "0");
+          const seconds = String(elapsed % 60).padStart(2, "0");
+          document.getElementById(
+            "timer"
+          ).textContent = `Thời gian: ${minutes}:${seconds}`;
+        }, 1000);
+      }
+
+      function submitAnswers() {
+        let score = 0;
+        const totalQuestions = questions.length;
+
+        questions.forEach((q) => {
+          const userAnswer = userAnswers[q.id];
+          let isCorrect = false;
+
+          switch (q.type) {
+            case "mcq":
+            case "audio":
+            case "truefalse":
+              isCorrect = userAnswer === q.correctAnswer;
+              break;
+            case "input":
+              isCorrect =
+                userAnswer &&
+                userAnswer.toLowerCase() === q.correctAnswer.toLowerCase();
+              break;
+            case "sort":
+              isCorrect = userAnswer === q.correctAnswer;
+              break;
+          }
+
+          if (isCorrect) score++;
+          q.isCorrect = isCorrect; // Lưu trạng thái đúng/sai
+        });
+
+        document.getElementById(
+          "modalTitle"
+        ).textContent = `Kết Quả: ${score}/${totalQuestions}`;
+        document.getElementById(
+          "resultSummary"
+        ).textContent = `Bạn đã trả lời đúng ${score} câu và sai ${
+          totalQuestions - score
+        } câu.`;
+        document.getElementById("resultModal").style.display = "block";
+      }
+
+      function showDetailedResults() {
+        document.getElementById("resultModal").style.display = "none";
+        const container = document.getElementById("questionList");
+
+        questions.forEach((q) => {
+          switch (q.type) {
+            case "mcq":
+              const mcqOptions = document.querySelectorAll(
+                `#mcq-${q.id} .mcq-option`
+              );
+              mcqOptions.forEach((opt) => {
+                if (opt.dataset.answer === q.correctAnswer) {
+                  opt.classList.add("correct");
+                } else if (
+                  opt.dataset.answer === userAnswers[q.id] &&
+                  !q.isCorrect
+                ) {
+                  opt.classList.add("incorrect");
+                }
+              });
+              break;
+
+            case "input":
+              const input = document.getElementById(`input-${q.id}`);
+              if (q.isCorrect) {
+                input.classList.add("correct");
+              } else {
+                input.classList.add("incorrect");
+              }
+              input.disabled = true;
+              break;
+
+            case "sort":
+              const dropBox = document.getElementById(`drop-box-${q.id}`);
+              if (q.isCorrect) {
+                dropBox.style.background = "var(--success)";
+                dropBox.style.color = "white";
+              } else {
+                dropBox.style.background = "var(--error)";
+                dropBox.style.color = "white";
+              }
+              break;
+
+            case "audio":
+              const audioOptions = document.querySelectorAll(
+                `#audio-${q.id} .mcq-option`
+              );
+              audioOptions.forEach((opt) => {
+                if (opt.dataset.answer === q.correctAnswer) {
+                  opt.classList.add("correct");
+                } else if (
+                  opt.dataset.answer === userAnswers[q.id] &&
+                  !q.isCorrect
+                ) {
+                  opt.classList.add("incorrect");
+                }
+              });
+              break;
+
+            case "truefalse":
+              const tfOptions = document.querySelectorAll(
+                `#tf-${q.id} .tf-option`
+              );
+              tfOptions.forEach((opt) => {
+                if (opt.dataset.answer === q.correctAnswer) {
+                  opt.classList.add("correct");
+                } else if (
+                  opt.dataset.answer === userAnswers[q.id] &&
+                  !q.isCorrect
+                ) {
+                  opt.classList.add("incorrect");
+                }
+              });
+              break;
+          }
+        });
+      }
+
+      function closeModal() {
+        document.getElementById("resultModal").style.display = "none";
+        localStorage.removeItem(`answers_${currentFolderId}`);
+        window.location.href = `study-options.html?id=${currentFolderId}`;
+      }
+    </script>
+  </body>
+</html>
