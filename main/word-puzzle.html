@@ -95,7 +95,7 @@
       .puzzle-meaning {
         font-size: 1.1rem;
         color: var(--text-secondary);
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
         padding: 0.5rem 1rem;
         background: var(--light-blue);
         border-radius: 6px;
@@ -127,77 +127,20 @@
         margin-bottom: 2rem;
       }
 
-      .word-slots {
-        display: flex;
-        gap: 0.5rem;
-        min-height: 60px;
-        padding: 0.5rem;
-        border: 2px dashed var(--border-color);
-        border-radius: 8px;
-        background: var(--card-bg);
-        justify-content: center;
-      }
-
-      .letter-slot {
-        width: 40px;
-        height: 40px;
-        border: 1px solid var(--border-color);
-        border-radius: 6px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+      .word-input {
+        padding: 0.75rem;
         font-size: 1.25rem;
-        font-weight: 500;
-        color: var(--text-primary);
-        background: var(--light-blue);
-        transition: background 0.2s;
-        cursor: pointer;
-      }
-
-      .letter-slot.filled {
-        background: var(--primary-color);
-        color: var(--card-bg);
-      }
-
-      .letter-slot.correct {
-        background: var(--success);
-      }
-
-      .letter-slot.incorrect {
-        background: var(--error);
-      }
-
-      .letter-tiles {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-        justify-content: center;
-      }
-
-      .letter-tile {
-        width: 40px;
-        height: 40px;
-        background: var(--card-bg);
-        border: 1px solid var(--border-color);
+        border: 2px solid var(--border-color);
         border-radius: 6px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.25rem;
-        font-weight: 500;
-        color: var(--primary-color);
-        transition: background 0.2s;
-        user-select: none;
-        cursor: pointer;
+        width: 100%;
+        max-width: 300px;
+        text-align: center;
+        outline: none;
+        transition: border-color 0.2s;
       }
 
-      .letter-tile:hover {
-        background: var(--light-blue);
-      }
-
-      .letter-tile.selected {
-        background: var(--primary-color);
-        color: var(--card-bg);
+      .word-input:focus {
+        border-color: var(--primary-color);
       }
 
       .puzzle-controls {
@@ -293,15 +236,8 @@
           padding: 1.5rem;
         }
 
-        .word-slots,
-        .letter-tiles {
+        .word-input {
           max-width: 90vw;
-        }
-
-        .letter-slot,
-        .letter-tile {
-          width: 35px;
-          height: 35px;
           font-size: 1rem;
         }
 
@@ -332,18 +268,22 @@
       </div>
 
       <div class="puzzle-container">
-        <h2 class="puzzle-title">Ghép từ</h2>
+        <h2 class="puzzle-title">Đoán từ</h2>
         <div class="puzzle-meaning" id="puzzleMeaning">Loading...</div>
         <button class="hint-btn" onclick="showHint()">Gợi ý</button>
         <div class="puzzle-area">
-          <div class="word-slots" id="wordSlots"></div>
-          <div class="letter-tiles" id="letterTiles"></div>
+          <input
+            type="text"
+            class="word-input"
+            id="wordInput"
+            placeholder="Nhập từ của bạn"
+          />
         </div>
         <div class="result-message" id="resultMessage"></div>
         <div class="result-details" id="resultDetails"></div>
         <div class="puzzle-controls">
-          <button class="btn btn-secondary" onclick="shuffleTiles()">
-            <i class="fas fa-random"></i> Xáo lại
+          <button class="btn btn-secondary" onclick="clearInput()">
+            <i class="fas fa-eraser"></i> Xóa
           </button>
           <button class="btn btn-primary" onclick="checkAnswer()">
             <i class="fas fa-check"></i> Kiểm tra
@@ -360,13 +300,22 @@
 
     <div id="notification" class="notification"></div>
 
+    <!-- Audio elements for correct and incorrect answers -->
+    <audio
+      id="correctSound"
+      src="./Am_thanh_lua_chon_Dung-www_tiengdong_com.mp3"
+    ></audio>
+    <audio
+      id="incorrectSound"
+      src="./Am_thanh_khi_chon_nham-www_tiengdong_com.mp3"
+    ></audio>
+
     <script>
       let allWords = [];
       let currentPuzzle = null;
       let correctWord = "";
       let score = 0;
       let hintUsed = false;
-      let selectedTile = null;
 
       window.addEventListener("load", () => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -412,196 +361,85 @@
         localStorage.setItem("puzzleScore", score);
       }
 
-      function shuffleArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [array[i], array[j]] = [array[j], array[i]];
-        }
-        return array;
-      }
-
       function generatePuzzle() {
         const randomIndex = Math.floor(Math.random() * allWords.length);
         currentPuzzle = allWords[randomIndex];
         correctWord = currentPuzzle.word.toLowerCase();
         hintUsed = false;
-        selectedTile = null;
 
         document.getElementById("puzzleMeaning").textContent =
           currentPuzzle.meaning;
+        document.getElementById("wordInput").value = "";
         document.getElementById("resultMessage").style.display = "none";
         document.getElementById("resultDetails").style.display = "none";
-
-        const wordSlots = document.getElementById("wordSlots");
-        wordSlots.innerHTML = "";
-        for (let i = 0; i < correctWord.length; i++) {
-          const slot = document.createElement("div");
-          slot.className = "letter-slot";
-          slot.dataset.index = i;
-          slot.addEventListener("click", handleSlotClick);
-          wordSlots.appendChild(slot);
-        }
-
-        const letterTiles = document.getElementById("letterTiles");
-        letterTiles.innerHTML = "";
-        let letters = correctWord.split("");
-        if (Math.random() > 0.5) {
-          letters.push(
-            String.fromCharCode(97 + Math.floor(Math.random() * 26))
-          );
-        }
-        const shuffledLetters = shuffleArray(letters);
-        shuffledLetters.forEach((letter) => {
-          const tile = document.createElement("div");
-          tile.className = "letter-tile";
-          tile.textContent = letter;
-          tile.addEventListener("click", handleTileClick);
-          letterTiles.appendChild(tile);
-        });
-      }
-
-      function handleTileClick(e) {
-        const tile = e.target;
-
-        if (selectedTile === tile) {
-          tile.classList.remove("selected");
-          selectedTile = null;
-        } else {
-          if (selectedTile) {
-            selectedTile.classList.remove("selected");
-          }
-          tile.classList.add("selected");
-          selectedTile = tile;
-        }
-      }
-
-      function handleSlotClick(e) {
-        const slot = e.target;
-
-        if (slot.textContent) {
-          const newTile = document.createElement("div");
-          newTile.className = "letter-tile";
-          newTile.textContent = slot.textContent;
-          newTile.addEventListener("click", handleTileClick);
-          document.getElementById("letterTiles").appendChild(newTile);
-
-          slot.textContent = "";
-          slot.classList.remove("filled", "correct", "incorrect");
-        } else if (selectedTile) {
-          slot.textContent = selectedTile.textContent;
-          slot.classList.add("filled");
-          selectedTile.remove();
-          selectedTile = null;
-        }
       }
 
       function checkAnswer() {
-        const slots = document.querySelectorAll(".letter-slot");
-        const currentWord = Array.from(slots)
-          .map((slot) => slot.textContent)
-          .join("")
+        const userWord = document
+          .getElementById("wordInput")
+          .value.trim()
           .toLowerCase();
         const resultMessage = document.getElementById("resultMessage");
         const resultDetails = document.getElementById("resultDetails");
+        const correctSound = document.getElementById("correctSound");
+        const incorrectSound = document.getElementById("incorrectSound");
 
-        if (currentWord.length !== correctWord.length) {
-          resultMessage.textContent = "Chưa đủ chữ cái!";
+        if (!userWord) {
+          resultMessage.textContent = "Vui lòng nhập từ!";
           resultMessage.className = "result-message error";
           resultMessage.style.display = "block";
+          incorrectSound.play();
           return;
         }
 
-        let feedback = "";
-        slots.forEach((slot, index) => {
-          const userLetter = slot.textContent.toLowerCase();
-          const correctLetter = correctWord[index];
-          if (userLetter === correctLetter) {
-            slot.classList.add("correct");
-            slot.classList.remove("incorrect");
-          } else {
-            slot.classList.add("incorrect");
-            slot.classList.remove("correct");
-          }
-        });
-
-        if (currentWord === correctWord) {
+        if (userWord === correctWord) {
           resultMessage.textContent = "Chính xác! 🎉";
           resultMessage.className = "result-message success";
-          feedback = "Bạn đã ghép từ hoàn hảo!";
+          resultDetails.textContent = "Bạn đã đoán đúng từ!";
           score += hintUsed ? 5 : 10;
           saveScore();
+          correctSound.play();
         } else {
           resultMessage.textContent = "Sai rồi!";
           resultMessage.className = "result-message error";
-          feedback = `Từ đúng là: <strong>${correctWord}</strong>. Hãy thử lại!`;
+          resultDetails.innerHTML = `Từ đúng là: <strong>${correctWord}</strong>. Hãy thử lại!`;
+          incorrectSound.play();
         }
 
         resultMessage.style.display = "block";
-        resultDetails.innerHTML = feedback;
         resultDetails.style.display = "block";
       }
 
       function revealAnswer() {
-        const slots = document.querySelectorAll(".letter-slot");
-        const letterTiles = document.getElementById("letterTiles");
-        letterTiles.innerHTML = "";
-        slots.forEach((slot, index) => {
-          slot.textContent = correctWord[index];
-          slot.classList.add("correct");
-          slot.classList.remove("filled", "incorrect");
-        });
-        document.getElementById("resultMessage").textContent =
-          "Đáp án đã được hiển thị!";
-        document.getElementById("resultMessage").className =
-          "result-message warning";
-        document.getElementById("resultMessage").style.display = "block";
-        document.getElementById("resultDetails").style.display = "none";
+        const resultMessage = document.getElementById("resultMessage");
+        const resultDetails = document.getElementById("resultDetails");
+        const incorrectSound = document.getElementById("incorrectSound");
+
+        document.getElementById("wordInput").value = correctWord;
+        resultMessage.textContent = "Đáp án đã được hiển thị!";
+        resultMessage.className = "result-message warning";
+        resultMessage.style.display = "block";
+        resultDetails.style.display = "none";
         if (!hintUsed) score = Math.max(0, score - 5);
         saveScore();
+        incorrectSound.play();
       }
 
-      function shuffleTiles() {
-        const slots = document.querySelectorAll(".letter-slot");
-        const letters = Array.from(slots)
-          .map((slot) => slot.textContent)
-          .filter(Boolean);
-        slots.forEach((slot) => {
-          slot.textContent = "";
-          slot.classList.remove("filled", "correct", "incorrect");
-          slot.style.background = "var(--light-blue)";
-        });
-
-        const letterTiles = document.getElementById("letterTiles");
-        letterTiles.innerHTML = "";
-        shuffleArray(letters).forEach((letter) => {
-          const tile = document.createElement("div");
-          tile.className = "letter-tile";
-          tile.textContent = letter;
-          tile.addEventListener("click", handleTileClick);
-          letterTiles.appendChild(tile);
-        });
-
+      function clearInput() {
+        document.getElementById("wordInput").value = "";
         document.getElementById("resultMessage").style.display = "none";
         document.getElementById("resultDetails").style.display = "none";
-        selectedTile = null;
       }
 
       function showHint() {
-        const slots = document.querySelectorAll(".letter-slot");
-        const emptySlot = Array.from(slots).find((slot) => !slot.textContent);
-        if (emptySlot) {
-          const index = parseInt(emptySlot.dataset.index);
-          emptySlot.textContent = correctWord[index];
-          emptySlot.classList.add("filled");
-          const tileToRemove = Array.from(
-            document.querySelectorAll(".letter-tile")
-          ).find((tile) => tile.textContent === correctWord[index]);
-          if (tileToRemove) tileToRemove.remove();
-          if (selectedTile === tileToRemove) selectedTile = null;
+        const input = document.getElementById("wordInput");
+        const currentValue = input.value.toLowerCase();
+        if (currentValue.length < correctWord.length) {
+          input.value = correctWord.slice(0, currentValue.length + 1);
           hintUsed = true;
           showNotification("Đã thêm một chữ cái gợi ý!", "warning");
         } else {
-          showNotification("Không còn ô trống để gợi ý!", "error");
+          showNotification("Không thể gợi ý thêm!", "error");
         }
       }
 
@@ -623,9 +461,20 @@
       }
 
       document.addEventListener("keydown", (e) => {
+        const wordInput = document.getElementById("wordInput");
+        // Check if the input field is focused
+        if (document.activeElement === wordInput) {
+          // If input is focused, only allow Enter to check answer
+          if (e.key === "Enter") {
+            checkAnswer();
+          }
+          return; // Prevent other shortcuts while typing
+        }
+
+        // If input is not focused, allow all shortcuts
         if (e.key === "Enter") checkAnswer();
         if (e.key === " ") nextPuzzle();
-        if (e.key === "r") shuffleTiles();
+        if (e.key === "r") clearInput();
         if (e.key === "h") showHint();
         if (e.key === "v") revealAnswer();
       });
