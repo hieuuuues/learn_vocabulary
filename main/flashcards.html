@@ -14,22 +14,21 @@
     />
     <style>
       :root {
-        --primary-color: #007bff; /* Màu xanh dương nhạt giống JSONBin.io */
-        --secondary-color: #00b4ff; /* Màu phụ sáng hơn */
-        --background: #f7f9fc; /* Nền nhạt gần trắng */
-        --card-bg: #ffffff; /* Thẻ trắng đơn giản */
-        --text-primary: #1a2a44; /* Màu chữ chính */
-        --text-secondary: #6b7280; /* Màu chữ phụ xám nhẹ */
-        --border-color: #e5e7eb; /* Viền nhạt */
-        --shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* Bóng đổ nhẹ */
+        --primary-color: #007bff;
+        --secondary-color: #00b4ff;
+        --background: #f7f9fc;
+        --card-bg: #ffffff;
+        --text-primary: #1a2a44;
+        --text-secondary: #6b7280;
+        --border-color: #e5e7eb;
+        --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         --success: #22c55e;
         --error: #ef4444;
         --warning: #f59e0b;
-        --light-blue: #e6f0fa; /* Màu xanh nhạt cho nền phụ */
-        --highlight-border: 2px solid #007bff; /* Viền nổi bật */
+        --light-blue: #e6f0fa;
+        --highlight-border: 2px solid #007bff;
       }
 
-      /* Định nghĩa keyframes cho animation */
       @keyframes fadeIn {
         from {
           opacity: 0;
@@ -66,7 +65,7 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        animation: fadeIn 0.5s ease-out; /* Hiệu ứng khi tải trang */
+        animation: fadeIn 0.5s ease-out;
       }
 
       .container {
@@ -111,7 +110,7 @@
         margin: 0 auto;
         perspective: 1000px;
         contain: content;
-        animation: scaleIn 0.3s ease-out; /* Hiệu ứng khi hiển thị */
+        animation: scaleIn 0.3s ease-out;
       }
 
       .flashcard {
@@ -121,7 +120,7 @@
         transform-style: preserve-3d;
         transition: transform 0.6s ease-in-out;
         cursor: pointer;
-        border-radius: 12px; /* Bo góc nhẹ hơn */
+        border-radius: 12px;
         box-shadow: var(--shadow);
         border: var(--highlight-border);
       }
@@ -149,11 +148,11 @@
 
       .card-back {
         transform: rotateY(180deg);
-        background: var(--light-blue); /* Nền nhạt hơn */
+        background: var(--light-blue);
       }
 
       .card-word {
-        font-size: 2.25rem; /* Nhỏ hơn một chút */
+        font-size: 2.25rem;
         font-weight: 600;
         color: var(--primary-color);
         margin-bottom: 1rem;
@@ -165,7 +164,6 @@
         font-size: 1.1rem;
         color: var(--text-secondary);
         margin-bottom: 1rem;
-        font-family: "Fira Code", Menlo, Courier, monospace; /* Đồng bộ font */
         max-width: 100%;
       }
 
@@ -174,7 +172,7 @@
         max-height: 200px;
         object-fit: contain;
         margin-bottom: 1.5rem;
-        border-radius: 8px; /* Bo góc nhẹ hơn */
+        border-radius: 8px;
       }
 
       .card-counter {
@@ -188,15 +186,15 @@
       .card-controls {
         margin-top: 2rem;
         display: flex;
-        gap: 0.75rem; /* Giảm khoảng cách */
+        gap: 0.75rem;
         justify-content: center;
         flex-wrap: wrap;
       }
 
       .control-btn {
-        padding: 0.65rem 1.25rem; /* Nhỏ hơn */
+        padding: 0.65rem 1.25rem;
         border: none;
-        border-radius: 8px; /* Bo góc nhẹ hơn */
+        border-radius: 8px;
         font-weight: 500;
         cursor: pointer;
         background: var(--card-bg);
@@ -206,7 +204,7 @@
       }
 
       .control-btn:hover {
-        transform: translateY(-1px) scale(1.02); /* Hiệu ứng nhẹ hơn */
+        transform: translateY(-1px) scale(1.02);
         box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
       }
 
@@ -229,7 +227,7 @@
       }
 
       .action-btn {
-        width: 40px; /* Nhỏ hơn */
+        width: 40px;
         height: 40px;
         border-radius: 50%;
         background: var(--card-bg);
@@ -244,12 +242,14 @@
       }
 
       .action-btn:hover {
-        transform: scale(1.05); /* Hiệu ứng nhẹ hơn */
+        transform: scale(1.05);
         background: var(--primary-color);
         color: white;
       }
 
-      .dictionary-modal {
+      .dictionary-modal,
+      .edit-modal,
+      .sentence-modal {
         display: none;
         position: fixed;
         top: 50%;
@@ -257,16 +257,18 @@
         transform: translateY(-50%);
         width: 350px;
         background: var(--card-bg);
-        border-radius: 12px; /* Bo góc nhẹ hơn */
+        border-radius: 12px;
         box-shadow: var(--shadow);
         padding: 2rem;
         max-height: 85vh;
         overflow-y: auto;
         z-index: 1000;
-        animation: fadeIn 0.3s ease-out; /* Hiệu ứng khi hiển thị */
+        animation: fadeIn 0.3s ease-out;
       }
 
-      .dictionary-modal.active {
+      .dictionary-modal.active,
+      .edit-modal.active,
+      .sentence-modal.active {
         display: block;
       }
 
@@ -295,6 +297,43 @@
         color: var(--primary-color);
       }
 
+      .edit-form label {
+        display: block;
+        font-size: 1rem;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+      }
+
+      .edit-form input,
+      .edit-form textarea {
+        width: 100%;
+        padding: 0.5rem;
+        margin-bottom: 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        font-family: "Fira Code", Menlo, Courier, monospace;
+      }
+
+      .edit-form textarea {
+        resize: vertical;
+        min-height: 80px;
+      }
+
+      .edit-form button {
+        padding: 0.65rem 1.25rem;
+        border: none;
+        border-radius: 8px;
+        background: var(--primary-color);
+        color: white;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .edit-form button:hover {
+        background: var(--secondary-color);
+      }
+
       .dict-word {
         font-size: 1.75rem;
         font-weight: 600;
@@ -303,7 +342,7 @@
 
       .dict-phonetic {
         color: var(--text-secondary);
-        font-size: 1rem; /* Nhỏ hơn */
+        font-size: 1rem;
         margin-bottom: 1rem;
       }
 
@@ -313,12 +352,12 @@
 
       .dict-meaning h3 {
         color: var(--primary-color);
-        font-size: 0.9rem; /* Nhỏ hơn */
+        font-size: 0.9rem;
         margin-bottom: 0.5rem;
       }
 
       .dict-translation {
-        font-size: 1rem; /* Nhỏ hơn */
+        font-size: 1rem;
         color: var(--text-primary);
       }
 
@@ -327,7 +366,34 @@
         font-style: italic;
         margin: 0.5rem 0;
         padding-left: 1rem;
-        border-left: 2px solid var(--primary-color); /* Viền mỏng hơn */
+        border-left: 2px solid var(--primary-color);
+      }
+
+      .sentence-content strong {
+        font-weight: 700;
+        color: var(--primary-color);
+      }
+
+      .sentence-translation {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        margin: 1rem 0;
+      }
+
+      .sentence-modal button {
+        padding: 0.65rem 1.25rem;
+        border: none;
+        border-radius: 8px;
+        background: var(--primary-color);
+        color: white;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        margin-top: 1rem;
+      }
+
+      .sentence-modal button:hover {
+        background: var(--secondary-color);
       }
 
       .progress-bar {
@@ -335,13 +401,13 @@
         top: 0;
         left: 0;
         width: 100%;
-        height: 4px; /* Mỏng hơn */
+        height: 4px;
         background: var(--border-color);
       }
 
       .progress {
         height: 100%;
-        background: var(--primary-color); /* Màu đơn thay vì gradient */
+        background: var(--primary-color);
         transition: width 0.3s ease;
       }
 
@@ -353,7 +419,7 @@
         }
 
         .card-word {
-          font-size: 1.75rem; /* Nhỏ hơn */
+          font-size: 1.75rem;
         }
 
         .card-phonetic {
@@ -375,7 +441,9 @@
           height: 35px;
         }
 
-        .dictionary-modal {
+        .dictionary-modal,
+        .edit-modal,
+        .sentence-modal {
           width: 90%;
           right: 5%;
           padding: 1.5rem;
@@ -409,6 +477,12 @@
               <button class="action-btn" onclick="toggleFavorite(event)">
                 <i class="far fa-star" id="favoriteIcon"></i>
               </button>
+              <button class="action-btn" onclick="toggleEditModal(event)">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="action-btn" onclick="generateSentence(event)">
+                <i class="fas fa-comment-dots"></i>
+              </button>
             </div>
           </div>
           <div class="card-face card-back"></div>
@@ -439,6 +513,38 @@
         </button>
       </div>
       <div id="dictionaryContent"></div>
+    </div>
+
+    <div class="edit-modal" id="editModal">
+      <div class="modal-header">
+        <h2>Sửa Flashcard</h2>
+        <button class="close-btn" onclick="toggleEditModal(event)">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <form class="edit-form" onsubmit="saveEdit(event)">
+        <label for="editWord">Từ vựng:</label>
+        <input type="text" id="editWord" required />
+        <label for="editIPA">Phiên âm (IPA):</label>
+        <input type="text" id="editIPA" />
+        <label for="editMeaning">Nghĩa:</label>
+        <textarea id="editMeaning" required></textarea>
+        <label for="editImage">URL hình ảnh (nếu có):</label>
+        <input type="url" id="editImage" />
+        <button type="submit">Lưu</button>
+      </form>
+    </div>
+
+    <div class="sentence-modal" id="sentenceModal">
+      <div class="modal-header">
+        <h2>Câu Ví Dụ</h2>
+        <button class="close-btn" onclick="toggleSentenceModal(event)">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="sentence-content" id="sentenceContent"></div>
+      <div class="sentence-translation" id="sentenceTranslation"></div>
+      <button onclick="generateSentence(event)">Xem Câu Khác</button>
     </div>
 
     <script>
@@ -493,6 +599,12 @@
               <i class="${
                 card.favorite ? "fas" : "far"
               } fa-star" id="favoriteIcon"></i>
+            </button>
+            <button class="action-btn" onclick="toggleEditModal(event)">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="action-btn" onclick="generateSentence(event)">
+              <i class="fas fa-comment-dots"></i>
             </button>
           </div>
           ${
@@ -603,6 +715,44 @@
         }
       }
 
+      function toggleEditModal(event) {
+        event.stopPropagation();
+        const modal = document.getElementById("editModal");
+        modal.classList.toggle("active");
+
+        if (modal.classList.contains("active")) {
+          const card = flashcards[currentIndex];
+          document.getElementById("editWord").value = card.word;
+          document.getElementById("editIPA").value = card.ipa || "";
+          document.getElementById("editMeaning").value = card.meaning;
+          document.getElementById("editImage").value = card.image || "";
+        }
+      }
+
+      function saveEdit(event) {
+        event.preventDefault();
+        const word = document.getElementById("editWord").value;
+        const ipa = document.getElementById("editIPA").value;
+        const meaning = document.getElementById("editMeaning").value;
+        const image = document.getElementById("editImage").value;
+
+        flashcards[currentIndex] = {
+          ...flashcards[currentIndex],
+          word,
+          ipa,
+          meaning,
+          image: image || flashcards[currentIndex].image,
+        };
+
+        const folderId = new URLSearchParams(window.location.search).get("id");
+        localStorage.setItem(
+          `flashcards_${folderId}`,
+          JSON.stringify(flashcards)
+        );
+        showCard(currentIndex);
+        document.getElementById("editModal").classList.remove("active");
+      }
+
       async function searchDictionary() {
         const word = flashcards[currentIndex].word;
         const dictionaryContent = document.getElementById("dictionaryContent");
@@ -659,6 +809,105 @@
         }
       }
 
+      async function generateSentence(event) {
+        event.stopPropagation();
+        const word = flashcards[currentIndex].word;
+
+        let sentenceModal = document.getElementById("sentenceModal");
+        if (!sentenceModal) {
+          sentenceModal = document.createElement("div");
+          sentenceModal.id = "sentenceModal";
+          sentenceModal.className = "sentence-modal";
+          sentenceModal.innerHTML = `
+            <div class="modal-header">
+              <h2>Câu Ví Dụ</h2>
+              <button class="close-btn" onclick="toggleSentenceModal(event)">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <div class="sentence-content" id="sentenceContent"></div>
+            <div class="sentence-translation" id="sentenceTranslation"></div>
+            <button onclick="generateSentence(event)">Xem Câu Khác</button>
+          `;
+          document.body.appendChild(sentenceModal);
+        }
+
+        sentenceModal.classList.add("active");
+        document.getElementById("sentenceContent").innerHTML =
+          "Đang tạo câu...";
+        document.getElementById("sentenceTranslation").innerHTML = "";
+
+        try {
+          // Tạo câu tiếng Anh
+          const sentenceResponse = await fetch(
+            "https://openai-proxy.daotrunghieu080210.workers.dev/",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                model: "gpt-3.5-turbo",
+                messages: [
+                  {
+                    role: "user",
+                    content: `Create a simple English sentence using the word "${word}".`,
+                  },
+                ],
+                max_tokens: 50,
+              }),
+            }
+          );
+
+          const sentenceData = await sentenceResponse.json();
+          const sentence = sentenceData.choices[0].message.content.trim();
+          const highlightedSentence = sentence.replace(
+            new RegExp(`\\b${word}\\b`, "gi"),
+            `<strong>${word}</strong>`
+          );
+          document.getElementById("sentenceContent").innerHTML =
+            highlightedSentence;
+
+          // Dịch câu sang tiếng Việt
+          const translationResponse = await fetch(
+            "https://openai-proxy.daotrunghieu080210.workers.dev/",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                model: "gpt-3.5-turbo",
+                messages: [
+                  {
+                    role: "user",
+                    content: `Translate this English sentence to Vietnamese: "${sentence}"`,
+                  },
+                ],
+                max_tokens: 50,
+              }),
+            }
+          );
+
+          const translationData = await translationResponse.json();
+          const translation = translationData.choices[0].message.content.trim();
+          document.getElementById(
+            "sentenceTranslation"
+          ).innerHTML = `Nghĩa: ${translation}`;
+        } catch (error) {
+          document.getElementById("sentenceContent").innerHTML =
+            "Lỗi khi tạo câu!";
+          document.getElementById("sentenceTranslation").innerHTML = "";
+          console.error("Lỗi:", error);
+        }
+      }
+
+      function toggleSentenceModal(event) {
+        event.stopPropagation();
+        const modal = document.getElementById("sentenceModal");
+        modal.classList.toggle("active");
+      }
+
       document.addEventListener("keydown", (e) => {
         if (e.key === " ") flipCard(document.querySelector(".flashcard"));
         else if (e.key === "ArrowLeft") previousCard();
@@ -668,16 +917,37 @@
         else if (e.key.toLowerCase() === "d")
           toggleDictionary(new Event("keydown"));
         else if (e.key.toLowerCase() === "a") toggleAutoPlay();
+        else if (e.key.toLowerCase() === "e")
+          toggleEditModal(new Event("keydown"));
+        else if (e.key.toLowerCase() === "s")
+          generateSentence(new Event("keydown"));
       });
 
       document.addEventListener("click", (e) => {
-        const modal = document.getElementById("dictionaryModal");
+        const dictModal = document.getElementById("dictionaryModal");
+        const editModal = document.getElementById("editModal");
+        const sentenceModal = document.getElementById("sentenceModal");
+
         if (
-          modal.classList.contains("active") &&
-          !modal.contains(e.target) &&
+          dictModal?.classList.contains("active") &&
+          !dictModal.contains(e.target) &&
           !e.target.closest(".action-btn")
         ) {
-          modal.classList.remove("active");
+          dictModal.classList.remove("active");
+        }
+        if (
+          editModal?.classList.contains("active") &&
+          !editModal.contains(e.target) &&
+          !e.target.closest(".action-btn")
+        ) {
+          editModal.classList.remove("active");
+        }
+        if (
+          sentenceModal?.classList.contains("active") &&
+          !sentenceModal.contains(e.target) &&
+          !e.target.closest(".action-btn")
+        ) {
+          sentenceModal.classList.remove("active");
         }
       });
 
