@@ -9,24 +9,41 @@
       rel="stylesheet"
     />
     <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
     />
+    <script src="https://unpkg.com/franc-min@6.2.0/franc-min.js"></script>
     <style>
       :root {
         --primary-color: #007bff;
         --secondary-color: #00b4ff;
+        --gradient-primary: linear-gradient(135deg, #4f46e5, #2563eb);
+        --gradient-hover: linear-gradient(135deg, #4338ca, #1d4ed8);
         --background: #f7f9fc;
         --card-bg: #ffffff;
         --text-primary: #1a2a44;
         --text-secondary: #6b7280;
         --border-color: #e5e7eb;
         --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.05);
+        --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
         --success: #22c55e;
         --error: #ef4444;
         --warning: #f59e0b;
         --light-blue: #e6f0fa;
         --highlight-border: 2px solid #007bff;
+        --chat-bg: #f0f4f8;
+        --chat-user-bg: #e3f2fd;
+        --chat-bot-bg: #d1fae5;
+        --radius-sm: 8px;
+        --radius-md: 12px;
+        --radius-lg: 16px;
+        --rainbow: linear-gradient(90deg, #ff0000, #0000ff, #8000ff);
       }
 
       @keyframes fadeIn {
@@ -47,6 +64,53 @@
         }
         to {
           transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeInRight {
+        from {
+          opacity: 0;
+          transform: translateX(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      @keyframes messageIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+          filter: blur(4px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+          filter: blur(0);
+        }
+      }
+
+      @keyframes typingDot {
+        0%,
+        100% {
+          transform: translateY(0);
+          opacity: 0.6;
+        }
+        50% {
+          transform: translateY(-4px);
           opacity: 1;
         }
       }
@@ -212,7 +276,6 @@
         background: var(--primary-color);
         color: white;
       }
-
       .control-btn.active {
         background: var(--secondary-color);
         color: white;
@@ -247,9 +310,7 @@
         color: white;
       }
 
-      .dictionary-modal,
-      .edit-modal,
-      .sentence-modal {
+      .modal {
         display: none;
         position: fixed;
         top: 50%;
@@ -266,9 +327,7 @@
         animation: fadeIn 0.3s ease-out;
       }
 
-      .dictionary-modal.active,
-      .edit-modal.active,
-      .sentence-modal.active {
+      .modal.active {
         display: block;
       }
 
@@ -339,28 +398,23 @@
         font-weight: 600;
         color: var(--primary-color);
       }
-
       .dict-phonetic {
         color: var(--text-secondary);
         font-size: 1rem;
         margin-bottom: 1rem;
       }
-
       .dict-meaning {
         margin-bottom: 1.5rem;
       }
-
       .dict-meaning h3 {
         color: var(--primary-color);
         font-size: 0.9rem;
         margin-bottom: 0.5rem;
       }
-
       .dict-translation {
         font-size: 1rem;
         color: var(--text-primary);
       }
-
       .dict-example {
         color: var(--text-secondary);
         font-style: italic;
@@ -373,14 +427,13 @@
         font-weight: 700;
         color: var(--primary-color);
       }
-
       .sentence-translation {
         font-size: 0.9rem;
         color: var(--text-secondary);
         margin: 1rem 0;
       }
 
-      .sentence-modal button {
+      .modal button {
         padding: 0.65rem 1.25rem;
         border: none;
         border-radius: 8px;
@@ -392,7 +445,7 @@
         margin-top: 1rem;
       }
 
-      .sentence-modal button:hover {
+      .modal button:hover {
         background: var(--secondary-color);
       }
 
@@ -411,42 +464,210 @@
         transition: width 0.3s ease;
       }
 
+      /* Chat box styles */
+      .unier-btn {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: var(--gradient-primary);
+        color: white;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: var(--shadow-lg);
+        transition: all 0.3s ease;
+        z-index: 1000;
+      }
+
+      .unier-btn:hover {
+        transform: scale(1.1);
+        background: var(--gradient-hover);
+      }
+
+      .unier-chat {
+        display: none;
+        position: fixed;
+        bottom: 6rem;
+        right: 2rem;
+        width: 350px;
+        background: var(--card-bg);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md);
+        padding: 1rem;
+        max-height: 70vh;
+        overflow-y: auto;
+        z-index: 1000;
+        animation: fadeInUp 0.3s ease-out;
+        font-family: "Plus Jakarta Sans", sans-serif;
+      }
+
+      .unier-chat.active {
+        display: block;
+      }
+
+      .unier-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .unier-header img {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+      }
+
+      .unier-header h2 {
+        font-size: 1.2rem;
+        color: var(--primary-color);
+        font-weight: 600;
+      }
+
+      .chat-messages {
+        max-height: 50vh;
+        overflow-y: auto;
+        margin-bottom: 1rem;
+        padding: 0.5rem;
+      }
+
+      .message-container {
+        margin: 0.5rem 0;
+      }
+
+      .message {
+        max-width: 85%;
+        padding: 0.75rem 1rem;
+        border-radius: var(--radius-md);
+        font-size: 0.9rem;
+        line-height: 1.5;
+      }
+
+      .user-message {
+        margin-left: auto;
+        background: var(--gradient-primary);
+        color: white;
+        border-bottom-right-radius: var(--radius-sm);
+      }
+
+      .ai-message {
+        margin-right: auto;
+        background: var(--light-blue);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        border-bottom-left-radius: var(--radius-sm);
+        box-shadow: var(--shadow-sm);
+      }
+
+      .typing-indicator {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 0.5rem 0.75rem;
+        background: var(--light-blue);
+        border-radius: var(--radius-md);
+        margin-bottom: 0.5rem;
+        width: fit-content;
+      }
+
+      .typing-dot {
+        width: 6px;
+        height: 6px;
+        background: var(--primary-color);
+        border-radius: 50%;
+        opacity: 0.6;
+        animation: typingDot 1s infinite;
+      }
+
+      .typing-dot:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .typing-dot:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+
+      .chat-input-area {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .chat-input {
+        flex: 1;
+        padding: 0.5rem;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        font-size: 0.9rem;
+        outline: none;
+        resize: none;
+        max-height: 100px;
+        font-family: "Plus Jakarta Sans", sans-serif;
+      }
+
+      .chat-input:focus {
+        border-color: var(--primary-color);
+      }
+
+      .send-btn {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: var(--radius-md);
+        background: var(--gradient-primary);
+        color: white;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .send-btn:hover {
+        background: var(--gradient-hover);
+      }
+
+      .send-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
       @media (max-width: 768px) {
         .flashcard-container {
           width: 100%;
           max-width: 600px;
           height: 500px;
         }
-
         .card-word {
           font-size: 1.75rem;
         }
-
         .card-phonetic {
           font-size: 0.9rem;
         }
-
         .card-image {
           max-width: 250px;
           max-height: 150px;
         }
-
         .control-btn {
           padding: 0.5rem 1rem;
           font-size: 0.85rem;
         }
-
         .action-btn {
           width: 35px;
           height: 35px;
         }
-
-        .dictionary-modal,
-        .edit-modal,
-        .sentence-modal {
+        .modal {
           width: 90%;
           right: 5%;
           padding: 1.5rem;
+        }
+        .unier-chat {
+          width: 90%;
+          right: 5%;
+          bottom: 5rem;
+        }
+        .unier-btn {
+          bottom: 1rem;
+          right: 1rem;
         }
       }
     </style>
@@ -505,7 +726,7 @@
       </div>
     </div>
 
-    <div class="dictionary-modal" id="dictionaryModal">
+    <div class="modal" id="dictionaryModal">
       <div class="modal-header">
         <h2>Từ điển</h2>
         <button class="close-btn" onclick="toggleDictionary(event)">
@@ -515,7 +736,7 @@
       <div id="dictionaryContent"></div>
     </div>
 
-    <div class="edit-modal" id="editModal">
+    <div class="modal" id="editModal">
       <div class="modal-header">
         <h2>Sửa Flashcard</h2>
         <button class="close-btn" onclick="toggleEditModal(event)">
@@ -535,7 +756,7 @@
       </form>
     </div>
 
-    <div class="sentence-modal" id="sentenceModal">
+    <div class="modal" id="sentenceModal">
       <div class="modal-header">
         <h2>Câu Ví Dụ</h2>
         <button class="close-btn" onclick="toggleSentenceModal(event)">
@@ -547,10 +768,35 @@
       <button onclick="generateSentence(event)">Xem Câu Khác</button>
     </div>
 
+    <button class="unier-btn" onclick="toggleUnierChat()">
+      <i class="fas fa-chalkboard-teacher"></i>
+    </button>
+
+    <div class="unier-chat" id="unierChat">
+      <div class="unier-header">
+        <img src="https://via.placeholder.com/32" alt="UNIer Avatar" />
+        <h2>UNIer</h2>
+      </div>
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="chat-input-area">
+        <textarea
+          class="chat-input"
+          id="chatInput"
+          placeholder="Hỏi UNIer..."
+          rows="1"
+          onkeydown="if(event.key === 'Enter' && !event.shiftKey) {event.preventDefault(); sendChatMessage();}"
+        ></textarea>
+        <button class="send-btn" onclick="sendChatMessage()">Gửi</button>
+      </div>
+    </div>
+
     <script>
       let currentIndex = 0;
       let flashcards = [];
       let autoPlayInterval = null;
+      const API_URL = "https://openai-proxy.daotrunghieu080210.workers.dev/";
+      const CURRENT_TIME = "2025-04-09 08:41:52"; // Cập nhật thời gian hiện tại theo ngày bạn yêu cầu
+      const CURRENT_USER = "hieuuuues";
 
       window.addEventListener("load", () => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -573,6 +819,7 @@
           );
           showCard(0);
           updateProgress();
+          initializeUnierChat();
         }
       });
 
@@ -817,7 +1064,7 @@
         if (!sentenceModal) {
           sentenceModal = document.createElement("div");
           sentenceModal.id = "sentenceModal";
-          sentenceModal.className = "sentence-modal";
+          sentenceModal.className = "modal";
           sentenceModal.innerHTML = `
             <div class="modal-header">
               <h2>Câu Ví Dụ</h2>
@@ -838,26 +1085,20 @@
         document.getElementById("sentenceTranslation").innerHTML = "";
 
         try {
-          // Tạo câu tiếng Anh
-          const sentenceResponse = await fetch(
-            "https://openai-proxy.daotrunghieu080210.workers.dev/",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                model: "gpt-3.5-turbo",
-                messages: [
-                  {
-                    role: "user",
-                    content: `Create a simple English sentence using the word "${word}".`,
-                  },
-                ],
-                max_tokens: 50,
-              }),
-            }
-          );
+          const sentenceResponse = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              model: "gpt-3.5-turbo",
+              messages: [
+                {
+                  role: "user",
+                  content: `Create a short, simple English sentence using "${word}".`,
+                },
+              ],
+              max_tokens: 30,
+            }),
+          });
 
           const sentenceData = await sentenceResponse.json();
           const sentence = sentenceData.choices[0].message.content.trim();
@@ -868,26 +1109,20 @@
           document.getElementById("sentenceContent").innerHTML =
             highlightedSentence;
 
-          // Dịch câu sang tiếng Việt
-          const translationResponse = await fetch(
-            "https://openai-proxy.daotrunghieu080210.workers.dev/",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                model: "gpt-3.5-turbo",
-                messages: [
-                  {
-                    role: "user",
-                    content: `Translate this English sentence to Vietnamese: "${sentence}"`,
-                  },
-                ],
-                max_tokens: 50,
-              }),
-            }
-          );
+          const translationResponse = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              model: "gpt-3.5-turbo",
+              messages: [
+                {
+                  role: "user",
+                  content: `Translate to Vietnamese: "${sentence}"`,
+                },
+              ],
+              max_tokens: 30,
+            }),
+          });
 
           const translationData = await translationResponse.json();
           const translation = translationData.choices[0].message.content.trim();
@@ -908,47 +1143,234 @@
         modal.classList.toggle("active");
       }
 
-      document.addEventListener("keydown", (e) => {
-        if (e.key === " ") flipCard(document.querySelector(".flashcard"));
-        else if (e.key === "ArrowLeft") previousCard();
-        else if (e.key === "ArrowRight") nextCard();
-        else if (e.key.toLowerCase() === "r") randomCard();
-        else if (e.key.toLowerCase() === "p") playAudio(new Event("keydown"));
-        else if (e.key.toLowerCase() === "d")
-          toggleDictionary(new Event("keydown"));
-        else if (e.key.toLowerCase() === "a") toggleAutoPlay();
-        else if (e.key.toLowerCase() === "e")
-          toggleEditModal(new Event("keydown"));
-        else if (e.key.toLowerCase() === "s")
-          generateSentence(new Event("keydown"));
-      });
+      // UNIer Chat Logic
+      let systemPrompt = {
+        role: "system",
+        content: `Bạn là UNIer – trợ lý học tiếng Anh **vui tính, lém lỉnh, lầy nhẹ nhưng thông minh cực đỉnh**, được phát triển bởi Trung Hiếu.
+
+⏰ Thời gian hiện tại: ${CURRENT_TIME}
+👤 Người dùng: ${CURRENT_USER}
+
+🌟 PHONG CÁCH ỨNG XỬ:
+- Tính cách hài hước, dí dỏm, chọc nhẹ nhưng không quá đà.
+- Trả lời các câu hỏi tiếng Anh theo cách “cười bò nhưng vẫn hiểu bài”.
+- Thỉnh thoảng pha trò, tung meme ngôn ngữ, hoặc “gạ kèo” học vui vẻ.
+- Coi người dùng là bạn thân: nói chuyện tự nhiên, thoải mái như bạn thân tám chuyện.
+
+🎯 NHIỆM VỤ CHÍNH:
+- Dạy tiếng Anh mà không khiến người học buồn ngủ như… học lý thuyết khô khan.
+- Trả lời mọi thứ liên quan đến tiếng Anh: từ vựng, ngữ pháp, phát âm, kỹ năng sống còn trong bài thi.
+- Tạo không khí học tập "như chơi game" – dễ vào đầu, khó quên, và cực chill.
+
+📚 PHONG CÁCH TRẢ LỜI:
+- [🔥 Chủ đề nóng hổi]
+- **Điểm chính** (được giải thích siêu dễ hiểu và đôi chút hài hước)
+- > Ví dụ dễ nhớ (Tiếng Anh – Tiếng Việt) – kèm bình luận vui
+- • Gợi ý luyện tập kiểu "thử thách bá đạo"
+- 💡 Mẹo học bá đạo
+- ⚠️ Lỗi học sinh thường dính – và cách tránh như ninja
+
+🧠 TƯ DUY GIẢNG DẠY:
+- Phân tích theo trình độ người dùng, không "chém gió" quá đà.
+- Ví dụ luôn sát với đời sống học sinh, crush, ăn hàng, deadline...
+- Giải thích kỹ nhưng luôn kèm ví dụ hài – giúp nhớ lâu hơn crush cũ.
+- Phản hồi ngay, không để bạn "chờ như đợi người yêu rep tin nhắn".
+
+⚙️ NGUYÊN TẮC ĐÁNG YÊU:
+- Luôn ưu tiên trả lời bằng ngôn ngữ người dùng (tiếng Việt hay tiếng Anh)
+- Kết hợp song ngữ khi dạy – vừa học vừa hiểu.
+- Duy trì tính **hài hước thân thiện** nhưng vẫn đảm bảo tính chuyên môn.
+
+👑 ĐẶC BIỆT:
+- Nếu người dùng sai: sửa lỗi bằng cách nhẹ nhàng, chọc cười để họ nhớ mà không xấu hổ.
+- Nếu người dùng đúng: tung hoa, thổi kèn, khen tới nóc (vì bạn xứng đáng).
+- Nếu người dùng lười học: gạ học bằng cách troll nhẹ, dụ dỗ bằng kẹo tiếng Anh 😜
+
+✅ MỤC TIÊU:
+Biến tiếng Anh từ “ác mộng" thành “crush quốc dân” – bạn học xong thấy yêu đời, yêu cả tiếng Anh và… có thể yêu luôn cả UNIer nếu bạn chưa có người yêu 😉`,
+      };
+
+      let conversationHistory = [systemPrompt];
+      let currentContext = {
+        level: "beginner",
+        progress: 0,
+        userId: CURRENT_USER,
+        lastInteraction: CURRENT_TIME,
+        language: "vi",
+        lastTopic: "",
+      };
+
+      function initializeUnierChat() {
+        const chatMessages = document.getElementById("chatMessages");
+        chatMessages.innerHTML = `
+          <div class="message-container">
+            <div class="message ai-message">
+              [Xin chào]<br>
+              **Yo yo!** Mình là UNIer đây! 😎<br>
+              Hỏi mình về từ "${flashcards[currentIndex].word}" hay bất cứ gì về tiếng Anh đi, mình trả lời nhanh như chớp luôn!
+            </div>
+          </div>
+        `;
+      }
+
+      function toggleUnierChat() {
+        const chat = document.getElementById("unierChat");
+        chat.classList.toggle("active");
+        if (chat.classList.contains("active")) {
+          document.getElementById("chatInput").focus();
+        }
+      }
+
+      function showTypingIndicator() {
+        const chatMessages = document.getElementById("chatMessages");
+        const container = document.createElement("div");
+        container.className = "message-container typing-container";
+        const indicator = document.createElement("div");
+        indicator.className = "typing-indicator";
+        for (let i = 0; i < 3; i++) {
+          const dot = document.createElement("div");
+          dot.className = "typing-dot";
+          indicator.appendChild(dot);
+        }
+        container.appendChild(indicator);
+        chatMessages.appendChild(container);
+        container.scrollIntoView({ behavior: "smooth" });
+        return container;
+      }
+
+      function removeTypingIndicator() {
+        const typingContainer = document.querySelector(".typing-container");
+        if (typingContainer) typingContainer.remove();
+      }
+
+      async function appendMessage(content, isUser = false) {
+        const chatMessages = document.getElementById("chatMessages");
+        const containerDiv = document.createElement("div");
+        containerDiv.className = "message-container";
+        const messageDiv = document.createElement("div");
+        messageDiv.className = `message ${
+          isUser ? "user-message" : "ai-message"
+        }`;
+        messageDiv.innerHTML = content.replace(/\n/g, "<br>");
+        containerDiv.appendChild(messageDiv);
+        chatMessages.appendChild(containerDiv);
+        messageDiv.scrollIntoView({ behavior: "smooth" });
+      }
+
+      function detectLanguage(text) {
+        if (typeof franc !== "undefined") {
+          const lang = franc(text, { minLength: 3 });
+          return lang === "vie" ? "vi" : lang === "eng" ? "en" : "vi";
+        } else {
+          const vietnamesePattern =
+            /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/;
+          return vietnamesePattern.test(text) ? "vi" : "en";
+        }
+      }
+
+      async function getBotResponse(message) {
+        try {
+          currentContext.lastInteraction = CURRENT_TIME;
+          currentContext.language = detectLanguage(message);
+
+          const lowerMessage = message.toLowerCase();
+          if (lowerMessage.includes("từ vựng"))
+            currentContext.lastTopic = "từ vựng";
+          else if (lowerMessage.includes("ngữ pháp"))
+            currentContext.lastTopic = "ngữ pháp";
+          else if (lowerMessage.includes("phát âm"))
+            currentContext.lastTopic = "phát âm";
+          else if (lowerMessage.includes("hội thoại"))
+            currentContext.lastTopic = "hội thoại";
+          else if (lowerMessage.includes("nghe"))
+            currentContext.lastTopic = "luyện nghe";
+          else if (lowerMessage.includes("viết"))
+            currentContext.lastTopic = "luyện viết";
+          else currentContext.lastTopic = "";
+
+          conversationHistory.push({
+            role: "user",
+            content: message,
+            name: currentContext.userId,
+          });
+
+          const response = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              model: "gpt-3.5-turbo", // Sử dụng model nhanh hơn
+              messages: conversationHistory,
+              temperature: 0.7,
+              max_tokens: 300,
+              user: currentContext.userId,
+            }),
+          });
+
+          if (!response.ok)
+            throw new Error(`HTTP error! status: ${response.status}`);
+          const data = await response.json();
+          if (!data.choices?.[0]?.message?.content)
+            throw new Error("Invalid response format");
+
+          const reply = data.choices[0].message.content;
+          conversationHistory.push({ role: "assistant", content: reply });
+          return reply;
+        } catch (error) {
+          console.error("API Error:", error);
+          throw new Error(
+            error.message.includes("429")
+              ? "Hệ thống bận quá, chờ tí nha!"
+              : "Lỗi rồi, thử lại đi nào!"
+          );
+        }
+      }
+
+      async function sendChatMessage() {
+        const input = document.getElementById("chatInput");
+        const message = input.value.trim();
+        if (!message) return;
+
+        try {
+          appendMessage(message, true);
+          input.value = "";
+          input.style.height = "auto";
+
+          showTypingIndicator();
+          const response = await getBotResponse(message);
+          removeTypingIndicator();
+
+          await appendMessage(response, false);
+        } catch (error) {
+          removeTypingIndicator();
+          appendMessage(error.message, false);
+        }
+      }
+
+      document
+        .getElementById("chatInput")
+        .addEventListener("input", function () {
+          this.style.height = "auto";
+          this.style.height = Math.min(this.scrollHeight, 100) + "px";
+        });
 
       document.addEventListener("click", (e) => {
-        const dictModal = document.getElementById("dictionaryModal");
-        const editModal = document.getElementById("editModal");
-        const sentenceModal = document.getElementById("sentenceModal");
-
-        if (
-          dictModal?.classList.contains("active") &&
-          !dictModal.contains(e.target) &&
-          !e.target.closest(".action-btn")
-        ) {
-          dictModal.classList.remove("active");
-        }
-        if (
-          editModal?.classList.contains("active") &&
-          !editModal.contains(e.target) &&
-          !e.target.closest(".action-btn")
-        ) {
-          editModal.classList.remove("active");
-        }
-        if (
-          sentenceModal?.classList.contains("active") &&
-          !sentenceModal.contains(e.target) &&
-          !e.target.closest(".action-btn")
-        ) {
-          sentenceModal.classList.remove("active");
-        }
+        const modals = [
+          "dictionaryModal",
+          "editModal",
+          "sentenceModal",
+          "unierChat",
+        ];
+        modals.forEach((modalId) => {
+          const modal = document.getElementById(modalId);
+          if (
+            modal?.classList.contains("active") &&
+            !modal.contains(e.target) &&
+            !e.target.closest(".action-btn") &&
+            !e.target.closest(".unier-btn")
+          ) {
+            modal.classList.remove("active");
+          }
+        });
       });
 
       let touchStartX = 0;
